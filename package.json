@@ -1,0 +1,26 @@
+{
+  "name": "fandemonium-shop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "listen": "stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded,payment_intent.succeeded --forward-to localhost:8787/api/webhook",
+    "agent": "node scripts/agent-buy.mjs",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute fandemonium-shop --local --file=./schema.sql",
+    "db:remote": "wrangler d1 execute fandemonium-shop --remote --file=./schema.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.13.14",
+    "stripe": "^23.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261029.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.156.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

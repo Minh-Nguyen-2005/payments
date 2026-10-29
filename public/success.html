@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thank you · Fandemonium Shop</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='4' y='26' font-size='26' fill='%23ff4fa6'>✦</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Jost:wght@400..700&family=Pinyon+Script&display=swap" />
+    <link rel="stylesheet" href="/tokens.css" />
+    <link rel="stylesheet" href="/stage/stage.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="galaxy-page">
+    <div id="stage" class="stage" data-scene="galaxy"></div>
+
+    <!-- The water in the card's glass: slow, wide ripples that bend the galaxy behind it. -->
+    <svg class="water-filter" width="0" height="0" aria-hidden="true">
+      <filter id="water" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.013" numOctaves="2" seed="7" result="ripples">
+          <animate attributeName="baseFrequency" dur="13.1s" values="0.006 0.013;0.0068 0.015;0.006 0.013" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="ripples" scale="34" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+
+    <header class="top">
+      <a class="wordmark" href="/">Fandemonium</a>
+    </header>
+
+    <main>
+      <section id="status-card" class="galaxy-card thanks water-glass" aria-labelledby="thanks-title">
+        <p class="label">Thank you</p>
+        <h1 id="thanks-title" class="display">You were redirected here,</h1>
+        <p>
+          <strong>but this page does NOT prove you paid.</strong>
+          Check the orders board on the front page: it only updates when Stripe's webhook arrives.
+        </p>
+        <p id="proof" class="proof" role="status" data-state="waiting">Checking…</p>
+        <a class="pearl-button" href="/">Back to the front row</a>
+      </section>
+    </main>
+
+    <script type="module" src="/success.js"></script>
+    <script type="module" src="/decor.js"></script>
+  </body>
+</html>

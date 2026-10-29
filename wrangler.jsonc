@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fandemonium-shop",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-23",
+
+  // Files in public/ are served as-is (index.html at "/", success.html at "/success").
+  // Any request that doesn't match a file falls through to the Hono app in src/index.ts.
+  "assets": { "directory": "./public" },
+
+  // The orders table lives in Cloudflare D1 (SQLite). The code reaches it as c.env.DB.
+  // Locally it's a file under .wrangler/; deployed, it's the database `wrangler d1 create` made.
+  "d1_databases": [
+    { "binding": "DB", "database_name": "fandemonium-shop", "database_id": "06794c29-a2d2-4a4b-b010-711b10875ab6" }
+  ],
+
+  // Keep console.log output in the Cloudflare dashboard, not just in `wrangler tail`.
+  "observability": { "enabled": true }
+}

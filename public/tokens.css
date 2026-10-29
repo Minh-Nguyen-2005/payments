@@ -1,0 +1,116 @@
+/* The design tokens: the two scenes' type, colors and glass, as custom properties. Load this
+   first, then /stage/stage.css. The fonts come from Google Fonts; put this in each page's <head>
+   (faster than an @import here, which waits for this file):
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Jost:wght@400..700&family=Pinyon+Script&display=swap">
+*/
+:root {
+  /* Always a dark stage, whatever the system's theme. */
+  color-scheme: dark;
+
+  /* Type */
+  --font-display: 'Bodoni Moda', 'Bodoni 72', Didot, 'Times New Roman', serif;
+  --font-script: 'Pinyon Script', 'Snell Roundhand', 'Segoe Script', 'Apple Chancery', serif;
+  --font-sans: Jost, 'Avenir Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tracking-label: 0.28em; /* gold small-caps labels, 10-11px, weight 500 */
+  --tracking-button: 0.24em; /* pearl button, 12px, weight 600 */
+  --tracking-display: 0.06em; /* Bodoni capitals, 15px */
+
+  /* Palette */
+  --pearl: #fbf7f3;
+  --pearl-edge: #9a8590;
+  --ink: #2a1b24;
+  --ink-soft: #6d5a64;
+  --wine: #8e1f4b;
+  --raspberry: #b52a68;
+  --gold: #e8cb8e;
+  --gold-deep: #8a6a2f;
+  --button-ink: #3a1a2a;
+  --caret: #ffc7ea;
+  /* The page's own light, for glows: a soft lilac by the runway (whose light keeps changing
+     color), a little bluer in the galaxy (.galaxy-page). */
+  --light: #c19ed5;
+  --light-galaxy: #d4b8ff;
+
+  /* The runway's gel cycle (runway.js animates it; listed here for accents) */
+  --gel-magenta: rgb(255 96 196);
+  --gel-ice: rgb(132 194 255);
+  --gel-lavender: rgb(186 158 255);
+  --gel-champagne: rgb(246 208 150);
+
+  /* Backgrounds (what shows before the canvases are painted) */
+  --bg-stage: radial-gradient(120% 90% at 50% 0%, #241b21 0%, #0b080b 60%, #050405 100%) fixed;
+  --bg-galaxy: radial-gradient(
+    150% 75% at 58% 115%,
+    #3b1045 0%,
+    #140c3c 36%,
+    #06071d 68%,
+    #02030e 100%
+  );
+
+  /* Radii and sizes */
+  --radius-card: 14px;
+  --radius-control: 10px;
+  --control-h: 42px;
+  --card-pad: 24px;
+  --gutter: 28px;
+
+  /* Glass by the runway: smoked, with a gold edge (.glass-card in stage.css) */
+  --glass-bg: linear-gradient(180deg, rgb(15 10 17 / 0.8), rgb(9 6 11 / 0.72));
+  --glass-border: 1px solid rgb(232 203 142 / 0.24);
+  --glass-shadow: 0 28px 64px rgb(0 0 0 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --glass-blur: blur(18px) saturate(1.15);
+  --glass-hairline: linear-gradient(90deg, transparent, rgb(255 236 246 / 0.38), transparent);
+  /* Glass in the galaxy: indigo, with a thin-film edge (.galaxy-card in stage.css) */
+  --galaxy-glass-bg: linear-gradient(to bottom, rgb(18 16 52 / 0.62), rgb(8 7 30 / 0.72));
+  --galaxy-glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08),
+    inset 0 -1px 0 rgb(255 140 200 / 0.14), 0 28px 60px -16px rgb(0 0 0 / 0.65);
+  --thin-film: conic-gradient(
+    from 200deg,
+    #ffb6dc,
+    #ffdcab 16%,
+    #fff3e2 28%,
+    #b0e8ff 46%,
+    #b8a6ff 64%,
+    #ff9fd5 82%,
+    #ffb6dc
+  );
+
+  /* The pearl button */
+  --pearl-bg: linear-gradient(180deg, #fffaf7 0%, #f3e9ee 55%, #e4d3dc 100%);
+  --pearl-border: 1px solid rgb(255 255 255 / 0.75);
+  --pearl-shadow: inset 0 1px 0 #fff, 0 6px 18px rgb(0 0 0 / 0.35),
+    0 0 26px color-mix(in srgb, var(--light) 28%, transparent);
+
+  /* Text fields */
+  --input-bg: rgb(255 255 255 / 0.06);
+  --input-border: 1px solid rgb(255 255 255 / 0.42);
+  --input-placeholder: rgb(255 255 255 / 0.62);
+  --input-focus-border: rgb(232 203 142 / 0.8);
+  --input-focus-ring: 0 0 0 2px rgb(232 203 142 / 0.78);
+
+  /* Focus */
+  --focus-outline: 2px solid var(--gold);
+  --focus-offset: 2px;
+
+  /* Text */
+  --text: #fff;
+  --text-muted: rgb(255 255 255 / 0.78);
+}
+
+/* The page itself: light text on the dark, drawn a little finer (antialiased), as in the design.
+   On the galaxy's page, add class="galaxy-page" to <body>. */
+body {
+  margin: 0;
+  background: var(--bg-stage);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.galaxy-page {
+  --light: var(--light-galaxy);
+  background: #02030e;
+}

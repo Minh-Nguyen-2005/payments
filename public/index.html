@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fandemonium Shop</title>
+    <meta name="description" content="A Stripe Checkout teaching demo: buy The Strawberry Slip Dress with a test card, and watch Stripe's webhook put your name in the front row." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='4' y='26' font-size='26' fill='%23ff4fa6'>✦</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Jost:wght@400..700&family=Pinyon+Script&display=swap" />
+    <link rel="stylesheet" href="/tokens.css" />
+    <link rel="stylesheet" href="/stage/stage.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="stage" class="stage" data-scene="runway"></div>
+
+    <!-- The water in the product card's glass: slow, wide ripples that bend the runway behind it. -->
+    <svg class="water-filter" width="0" height="0" aria-hidden="true">
+      <filter id="water" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.013" numOctaves="2" seed="7" result="ripples">
+          <animate attributeName="baseFrequency" dur="13.1s" values="0.006 0.013;0.0068 0.015;0.006 0.013" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="ripples" scale="34" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+
+    <header class="top">
+      <p class="wordmark">Fandemonium</p>
+      <p class="label">The shop · Stripe test mode</p>
+    </header>
+
+    <main>
+      <section id="card" class="glass-card product water-glass" aria-labelledby="product-name">
+        <canvas id="look" class="product-art" role="img" aria-label="The Strawberry Slip Dress: sheer blush organza over a satin slip, scattered with tiny strawberries and crystals"></canvas>
+        <form id="buy-form" class="product-info">
+          <p class="label">Look 01 · the only look</p>
+          <h1 id="product-name" class="float">The Strawberry Slip Dress</h1>
+          <p class="blurb">Sheer blush organza over a satin slip, scattered with tiny strawberries and crystals. Very 2003.</p>
+          <p class="price float">$2.00</p>
+          <label for="name" class="label">Your name, for the front row</label>
+          <div class="buy">
+            <input id="name" class="input" maxlength="30" required autocomplete="off" placeholder="Type your name" />
+            <button type="submit" class="pearl-button">Buy the look</button>
+          </div>
+          <p id="status" class="status" role="status"></p>
+          <p class="hint">Test card <b>4242 4242 4242 4242</b> · any future date · any CVC · any ZIP</p>
+        </form>
+      </section>
+
+      <section id="front-row" class="front-row" aria-labelledby="front-row-title">
+        <h2 id="front-row-title" class="label">Front row <span>· only Stripe's webhook adds names here</span></h2>
+        <p id="arrivals" class="arrivals" aria-live="polite"></p>
+        <ol id="board" class="chips"></ol>
+      </section>
+    </main>
+
+    <footer class="fineprint">CS52 workshop demo · Stripe test mode, no real money · a fan homage, not affiliated with any brand</footer>
+
+    <script type="module" src="/app.js"></script>
+    <script type="module" src="/decor.js"></script>
+  </body>
+</html>

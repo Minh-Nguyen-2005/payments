@@ -1,0 +1,13 @@
+node_modules
+dist
+.DS_Store
+
+# Wrangler's local state: the local D1 database lives in here
+.wrangler
+
+# Real keys live only on your machine (and in `wrangler secret put` once deployed)
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*

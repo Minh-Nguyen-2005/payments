@@ -1,0 +1,9 @@
+# Copy this file to .dev.vars (git-ignored) and fill in your own TEST-mode values.
+# Never commit real keys, and never paste them into a chat.
+
+# Stripe Dashboard (test mode) -> Developers -> API keys -> Secret key
+STRIPE_SECRET_KEY=sk_test_replace_me
+
+# Printed by `npm run listen` (or `stripe listen --print-secret`)
+# (the deployed endpoint has a DIFFERENT whsec_, set with `wrangler secret put`)
+STRIPE_WEBHOOK_SECRET=whsec_replace_me

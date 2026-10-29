@@ -1,0 +1,339 @@
+/* The two scenes behind the pages, and the glass the pages' cards are made of. Load tokens.css
+   first: the cards use its colors. Each page has one empty host element,
+     <div class="stage" data-scene="runway"></div>   (or data-scene="galaxy")
+   and runway.js's mountRunway() or galaxy.js's mountGalaxy() builds the scene's stacked layers
+   inside it. The host is fixed to the window behind everything, and its own background is the
+   scene's plain version, which shows before the canvases are painted, and instead of them if
+   the browser can't paint them. The scenes are only pictures: aria-hidden, and every click goes
+   through them. */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: #000;
+}
+
+.stage[data-scene='galaxy'] {
+  background: var(--bg-galaxy);
+}
+
+/* ---------- The runway (runway.js) ---------- */
+/* The cards on the runway's page: smoked glass edged in gold, floating over the runway. The
+   stage's light comes through them, blurred, and catches their lower edge (::after, a hairline
+   of light). */
+.glass-card {
+  position: relative;
+  border: 1px solid rgb(232 203 142 / 0.24);
+  background: linear-gradient(180deg, rgb(15 10 17 / 0.8), rgb(9 6 11 / 0.72));
+  box-shadow:
+    0 28px 64px rgb(0 0 0 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.07);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.glass-card::after {
+  content: '';
+  position: absolute;
+  right: 12%;
+  bottom: -1px;
+  left: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 236 246 / 0.38), transparent);
+  pointer-events: none;
+}
+
+/* The runway, fixed to the window behind everything. Back to front (runway.js paints the
+   canvases):
+     .lit       everything the stage's colored light falls on: the lum canvas, painted in white
+                light, the drifting haze screened over it, and the light's gel multiplied over
+                both, which colors them. It's black until the runway is painted, so the gel has
+                nothing to color.
+     .own       light in the flakes' own colors, and the white-hot cores, screened on
+     .twinkle   the glints that come and go, screened on: a band across the floor, which
+                runway.js places
+     .vignette, .grain   the lens and the film */
+.runway {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.runway canvas,
+.runway .layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* isolation: the gel multiplies only what's in .lit, not the page. */
+.runway .lit {
+  isolation: isolate;
+  background: #000;
+}
+
+/* The haze drifts (runway.js moves the canvas) under a mask that stays put, showing it only where
+   the light is. runway.js paints the mask small, and it's stretched over the window. The canvas
+   is bigger than the window, so its edges never show as it drifts. */
+.runway .haze-wrap {
+  mix-blend-mode: screen;
+  mask-size: 100% 100%;
+}
+
+.runway .haze {
+  top: -40px;
+  left: -80px;
+  width: calc(100% + 160px);
+  height: calc(100% + 80px);
+  opacity: 0.6;
+  will-change: transform;
+}
+
+/* The light's gel: magenta to start, then whatever color runway.js gives it. */
+.runway .light-gel {
+  background: rgb(255 96 196);
+  mix-blend-mode: multiply;
+}
+
+.runway .own,
+.runway .twinkle {
+  mix-blend-mode: screen;
+}
+
+/* The lens: darker at the top of the window and toward the corners. */
+.runway .vignette {
+  background: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.55),
+      rgb(0 0 0 / 0.22) 70px,
+      transparent 140px
+    ),
+    radial-gradient(ellipse 92% 86% at 50% 54%, transparent 52%, rgb(0 0 0 / 0.58) 100%);
+}
+
+/* The film grain. runway.js sets its tile (tools.js grain()) as the background image. */
+.runway .grain {
+  background-size: 160px;
+  opacity: 0.26;
+  mix-blend-mode: soft-light;
+}
+
+/* On a retina screen, half size, so each grain is one screen pixel. */
+@media (min-resolution: 2dppx) {
+  .runway .grain {
+    background-size: 80px;
+  }
+}
+
+/* ---------- The galaxy (galaxy.js) ---------- */
+/* The galaxy, fixed to the window behind everything: the sky, the planet and the stars, the veil
+   of haze, the glitter, its glints, the lens, and a little film grain, back to front. Its own
+   background is deep space, for the moment before the canvases paint the real one, and each
+   canvas fades in once it's painted (galaxy.js marks it data-shown). */
+.galaxy {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(
+    150% 75% at 58% 115%,
+    #3b1045 0%,
+    #140c3c 36%,
+    #06071d 68%,
+    #02030e 100%
+  );
+  pointer-events: none;
+}
+
+.galaxy > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.galaxy canvas {
+  opacity: 0;
+  transition: opacity 0.9s ease-out;
+}
+
+.galaxy canvas[data-shown] {
+  opacity: 1;
+}
+
+/* Screen adds light the way light adds up: a layer can only brighten what's under it. */
+.galaxy .veil,
+.galaxy .glitter,
+.galaxy .glints {
+  mix-blend-mode: screen;
+}
+
+/* The veil drifts up to 30 px, so it's 40 px bigger than the window all round: its edges never
+   show. */
+.galaxy .veil {
+  inset: -40px;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+  will-change: transform;
+}
+
+/* The grain: a tile galaxy.js draws, which mountGalaxy() sets as --galaxy-grain. */
+.galaxy .grain {
+  background-image: var(--galaxy-grain, none);
+  opacity: 0.24;
+  mix-blend-mode: soft-light;
+}
+
+/* On a retina screen, half size, so each grain is one screen pixel. */
+@media (min-resolution: 2dppx) {
+  .galaxy .grain {
+    background-size: 80px;
+  }
+}
+
+/* With motion reduced, each layer shows as soon as it's painted, with no fade. */
+@media (prefers-reduced-motion: reduce) {
+  .galaxy canvas {
+    transition: none;
+  }
+}
+
+/* The card on the galaxy's page: dark glass in the night's indigo. Its top edge catches the
+   starlight and its bottom edge the planet's pink. */
+.galaxy-card {
+  position: relative;
+  background: linear-gradient(to bottom, rgb(18 16 52 / 0.62), rgb(8 7 30 / 0.72));
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    inset 0 -1px 0 rgb(255 140 200 / 0.14),
+    0 28px 60px -16px rgb(0 0 0 / 0.65);
+}
+
+/* Its edge, a hairline of thin-film color like a flake of the glitter: a 1 px ring cut out of a
+   conic gradient (champagne, rose, ice, violet) by a mask, so only the edge shows. Faint, so it
+   reads as an edge catching the light, not a border. */
+.galaxy-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 200deg,
+    #ffb6dc,
+    #ffdcab 16%,
+    #fff3e2 28%,
+    #b0e8ff 46%,
+    #b8a6ff 64%,
+    #ff9fd5 82%,
+    #ffb6dc
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ---------- The pieces on the cards ---------- */
+/* Optional helpers for the cards' contents, in the scenes' style (the colors are tokens.css's). */
+
+/* The script title glows in the page's light (--light). color-mix fades it without a second
+   color. */
+.wordmark {
+  margin: 0;
+  font-family: var(--font-script);
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1;
+  text-shadow:
+    0 0 1px rgb(255 255 255 / 0.85),
+    0 0 18px color-mix(in srgb, var(--light) 60%, transparent),
+    0 0 44px color-mix(in srgb, var(--light) 35%, transparent);
+}
+
+/* Gold small capitals, for a card's title. */
+.label {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Bodoni capitals, for names. */
+.display {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+/* The pearl satin button, lit a little by the page's light. */
+.pearl-button {
+  height: var(--control-h);
+  padding: 0 22px;
+  border: var(--pearl-border);
+  border-radius: var(--radius-control);
+  background: var(--pearl-bg);
+  /* Written out, not var(--pearl-shadow), so it glows in this page's --light. */
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 6px 18px rgb(0 0 0 / 0.35),
+    0 0 26px color-mix(in srgb, var(--light) 28%, transparent);
+  color: var(--button-ink);
+  font: 600 12px/1 var(--font-sans);
+  letter-spacing: var(--tracking-button);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pearl-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* A text field on the glass. */
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--control-h);
+  padding: 0 16px;
+  border: var(--input-border);
+  border-radius: var(--radius-control);
+  background: var(--input-bg);
+  color: #fff;
+  font: 15px var(--font-sans);
+  caret-color: var(--caret);
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+  box-shadow: var(--input-focus-ring);
+}
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
