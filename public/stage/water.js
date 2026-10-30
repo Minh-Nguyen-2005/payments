@@ -270,6 +270,13 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
       return [span, { font: `${s.fontStyle} ${s.fontWeight} ${s.fontSize} ${s.fontFamily}`, color: s.color, case: s.textTransform, glow }]
     }),
   )
+  // The name field, the buttons and the status line ripple too: the water draws them, while the
+  // real ones stay in place, invisible, so typing, clicking and the keyboard work as always.
+  const controls = [...card.querySelectorAll('.input, .pearl-button')]
+  const status = card.querySelector('[role=status]')
+  const statusLook = status && getComputedStyle(status)
+  const statusFont = statusLook && `${statusLook.fontWeight} ${statusLook.fontSize} ${statusLook.fontFamily}`
+  const statusColor = statusLook?.color
   card.prepend(canvas)
   card.classList.add('water-on')
 
@@ -300,11 +307,68 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
     scene.height = Math.round(box.height)
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.uniform2f(u.uSize, box.width, box.height)
+    paint()
+    const h = heading?.getBoundingClientRect()
+    gl.uniform4f(u.uTitleBox, h ? h.left - box.left : 0, h ? h.top - box.top : 0, h ? h.width : 0, h ? h.height : 0)
+    gl.uniform1f(u.uRain, rain ? 1 : 0)
+    gl.uniform1f(u.uHasArt, art ? 1 : 0)
+    hemFound = 0
+  }
+
+  // A field or a button, drawn where the page laid it out.
+  function drawControl(ctx, el, dpr) {
+    const r = el.getBoundingClientRect()
+    const [x, y, w, h] = [r.left - box.left, r.top - box.top, r.width, r.height]
+    ctx.save()
+    ctx.beginPath()
+    ctx.roundRect(x, y, w, h, 10)
+    if (el.matches('.pearl-button')) {
+      // The pearl satin button, glowing a little; dimmed while it waits.
+      ctx.globalAlpha = el.disabled ? 0.6 : 1
+      ctx.shadowColor = 'rgb(255 214 234 / 0.35)'
+      ctx.shadowBlur = 18 * dpr
+      const pearl = ctx.createLinearGradient(0, y, 0, y + h)
+      pearl.addColorStop(0, '#fffaf7')
+      pearl.addColorStop(0.55, '#f3e9ee')
+      pearl.addColorStop(1, '#e4d3dc')
+      ctx.fillStyle = pearl
+      ctx.fill()
+      ctx.shadowColor = 'transparent'
+      ctx.strokeStyle = 'rgb(255 255 255 / 0.75)'
+      ctx.stroke()
+    } else {
+      // The name field: its frame (gold while it has the keyboard), and what's typed, or its hint.
+      const focused = document.activeElement === el
+      ctx.fillStyle = 'rgb(255 255 255 / 0.06)'
+      ctx.fill()
+      ctx.strokeStyle = focused ? 'rgb(232 203 142 / 0.85)' : 'rgb(255 255 255 / 0.42)'
+      ctx.stroke()
+      if (focused) {
+        ctx.beginPath()
+        ctx.roundRect(x - 2, y - 2, w + 4, h + 4, 12)
+        ctx.strokeStyle = 'rgb(232 203 142 / 0.6)'
+        ctx.lineWidth = 2
+        ctx.stroke()
+      }
+      const look = getComputedStyle(el)
+      const pad = parseFloat(look.paddingLeft)
+      ctx.font = `${look.fontWeight} ${look.fontSize} ${look.fontFamily}`
+      ctx.fillStyle = el.value ? '#fff' : 'rgb(255 255 255 / 0.62)'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(el.value || el.placeholder, x + pad, y + h / 2, w - 2 * pad)
+    }
+    ctx.restore()
+  }
+
+  // Draw everything on the card that ripples: the fields and buttons, the words, the status line.
+  function paint() {
+    const dpr = Math.min(devicePixelRatio || 1, 2)
     for (const ctx of [wctx, tctx]) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, box.width, box.height)
       ctx.textBaseline = 'middle'
     }
+    for (const el of controls) drawControl(wctx, el, dpr)
     for (const span of spans) {
       const ctx = heading?.contains(span) ? tctx : wctx
       const r = span.getBoundingClientRect()
@@ -314,15 +378,19 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
       ctx.fillStyle = look.color
       ctx.shadowColor = look.glow ? 'rgb(255 214 234 / 0.75)' : 'transparent'
       ctx.shadowBlur = look.glow ? 14 * dpr : 0
+      ctx.globalAlpha = span.closest('button')?.disabled ? 0.6 : 1 // a waiting button's label dims too
       ctx.fillText(ch, r.left - box.left, r.top - box.top + r.height / 2)
+    }
+    wctx.globalAlpha = 1
+    if (status?.textContent) {
+      const r = status.getBoundingClientRect()
+      wctx.font = statusFont
+      wctx.fillStyle = statusColor
+      wctx.shadowColor = 'transparent'
+      wctx.fillText(status.textContent, r.left - box.left, r.top - box.top + r.height / 2)
     }
     upload(2, words)
     upload(3, titled)
-    const h = heading?.getBoundingClientRect()
-    gl.uniform4f(u.uTitleBox, h ? h.left - box.left : 0, h ? h.top - box.top : 0, h ? h.width : 0, h ? h.height : 0)
-    gl.uniform1f(u.uRain, rain ? 1 : 0)
-    gl.uniform1f(u.uHasArt, art ? 1 : 0)
-    hemFound = 0
   }
 
   // The scene behind the card: the stage's layers under the card's box, blended as stage.css
@@ -414,6 +482,11 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
   })
   resize.observe(card)
   document.fonts.ready.then(measure) // fonts can arrive after the first measure
+  const changes = ['input', 'focus', 'blur']
+  for (const el of controls) for (const type of changes) el.addEventListener(type, paint)
+  const watch = new MutationObserver(paint)
+  for (const el of controls) watch.observe(el, { attributes: true, attributeFilter: ['disabled'] })
+  if (status) watch.observe(status, { childList: true, characterData: true, subtree: true })
   still.addEventListener('change', start)
   document.addEventListener('visibilitychange', start)
 
@@ -422,6 +495,8 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
     resize.disconnect()
     still.removeEventListener('change', start)
     document.removeEventListener('visibilitychange', start)
+    for (const el of controls) for (const type of changes) el.removeEventListener(type, paint)
+    watch.disconnect()
     card.classList.remove('water-on')
     canvas.remove()
   }

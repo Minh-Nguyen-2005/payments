@@ -85,6 +85,19 @@ main {
 .water-on #look {
   visibility: hidden; /* the water draws the dress, standing in it */
 }
+/* The field, the buttons and the status line: the water draws them rippling, so the real ones
+   (which do the typing and clicking, and keep the cursor and the keyboard focus ring) go clear. */
+.water-on .input,
+.water-on .pearl-button {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.water-on .input,
+.water-on .input::placeholder,
+.water-on .status {
+  color: transparent;
+}
 .ripple-word {
   display: inline-block;
   white-space: nowrap; /* a line never breaks inside a word */
