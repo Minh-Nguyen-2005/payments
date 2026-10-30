@@ -147,7 +147,7 @@ void main() {
   // down, broken up and fading, and its letters glitter a little, like wet ink.
   if (uTitleBox.z > 0.0) {
     float axis = uTitleBox.y + uTitleBox.w * 0.86; // where the letters stand
-    if (p.y > axis) {
+    if (p.y > axis && p.y - axis < 34.0) { // one line's worth, so a wrapped title's first line isn't mirrored
       float depth = p.y - axis;
       vec2 m = vec2(p.x, axis - depth * 1.15) + liquid(p, 2.4) + b * 0.5;
       vec4 r = texture2D(uTitle, clamp(m / uSize, 0.0, 1.0));
@@ -198,7 +198,12 @@ function letters(el) {
 function hemOf(canvas) {
   const { width, height } = canvas
   if (!width || !height) return height
-  const data = canvas.getContext('2d').getImageData(0, 0, width, height).data
+  const probe = document.createElement('canvas')
+  probe.width = width
+  probe.height = height
+  const pctx = probe.getContext('2d', { willReadFrequently: true })
+  pctx.drawImage(canvas, 0, 0)
+  const data = pctx.getImageData(0, 0, width, height).data
   for (let y = height - 1; y > 0; y--) {
     for (let x = 0; x < width; x += 3) if (data[(y * width + x) * 4 + 3] > 40) return y
   }
@@ -362,6 +367,7 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
 
   // Draw everything on the card that ripples: the fields and buttons, the words, the status line.
   function paint() {
+    box = card.getBoundingClientRect() // where the card is now (the page may have scrolled)
     const dpr = Math.min(devicePixelRatio || 1, 2)
     for (const ctx of [wctx, tctx]) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -429,6 +435,7 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
   }
 
   function draw(ms) {
+    box = card.getBoundingClientRect() // where the card is now (the page may have scrolled)
     const t = (ms / 1000) % 3600
     paintScene()
     if (art) {
@@ -465,14 +472,14 @@ export function mountWater(card, { stage, art = null, texts = [], rain = false, 
 
   function tick(ms) {
     frame = requestAnimationFrame(tick)
-    if (ms - last < 33) return
+    if (ms - last < (still.matches ? 250 : 33)) return // held still: 4 unmoving frames a second
     last = ms
     draw(ms)
   }
 
   function start() {
     cancelAnimationFrame(frame)
-    if (still.matches || document.hidden) draw(performance.now())
+    if (document.hidden) draw(performance.now())
     else frame = requestAnimationFrame(tick)
   }
 

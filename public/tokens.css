@@ -52,7 +52,7 @@
   /* Radii and sizes */
   --radius-card: 14px;
   --radius-control: 10px;
-  --control-h: 42px;
+  --control-h: 44px; /* the comfortable minimum for a fingertip */
   --card-pad: 24px;
   --gutter: 28px;
 
