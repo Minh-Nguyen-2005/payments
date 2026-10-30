@@ -1,6 +1,6 @@
 # CS52 Workshop: Payments (Stripe Checkout, webhooks, agentic commerce)
 
-**Who:** Minh Nguyen + Cathy · **When:** week N
+**Who:** Minh Nguyen + Cathy Cho · **When:** week 7
 
 A one-dress "fashion shop" with a live front row: the redirect to the success page is **not** proof of payment; Stripe's **signed webhook** is. Built on the CS52 stack (a Cloudflare Worker with Hono, and D1). Explained file by file in [EXPLAINER.md](EXPLAINER.md), and the questions we practiced are in [ELI5.md](ELI5.md).
 
@@ -23,10 +23,10 @@ Stripe rents you a cash register. **Checkout** is Stripe's hosted payment page: 
 ## Try it (5 minutes, no install, no account, no key)
 
 1. Open **https://fandemonium-shop.minh-t-nguyen-27.workers.dev** on a laptop or phone.
-2. Type your name (everyone sees it) and press **Buy the look**.
+2. Type your name (everyone sees it) and press **Buy**.
 3. On Stripe's page, pay with card `4242 4242 4242 4242`, any future date, any CVC, any ZIP. It's test mode: no real money.
-4. Watch the **front row**: your name lands only when Stripe's signed webhook arrives. The success page says so too.
-5. Bonus: open `/success` yourself, without paying. Nothing is recorded, which is the point.
+4. Watch the **front row**: your name lands only when Stripe's signed webhook arrives.
+5. Bonus: open `/success` yourself, without paying. It still says *thank you*, but no name lands. A redirect proves nothing.
 
 ## Demo
 

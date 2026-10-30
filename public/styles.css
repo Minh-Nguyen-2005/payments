@@ -1,6 +1,6 @@
 /* The shop's own layout, on top of tokens.css (type, colors) and stage/stage.css (scenes, glass). */
 :root {
-  /* The seven stage lights: each name in the front row wears one. */
+  /* The seven stage lights: each name in the front row glows in one. */
   --act-0: #e2b6ff; /* lilac */
   --act-1: #f2d2a6; /* champagne */
   --act-2: #ff3d52; /* red */
@@ -22,13 +22,16 @@ body {
   outline: var(--focus-outline);
   outline-offset: var(--focus-offset);
 }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px 16px;
   padding: 18px 28px 6px;
 }
 .top > * {
@@ -41,55 +44,59 @@ body {
 main {
   flex: 1;
   width: min(900px, calc(100% - 32px));
-  margin: 8px auto 0;
+  margin: 8px auto 32px;
 }
 
-/* The product card: the dress on the left, the buying on the right (stacked on a phone). */
-.product {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 28px;
-  align-items: center;
-  padding: var(--card-pad) 28px;
-  border-radius: var(--radius-card);
-}
-/* A sparkling water surface with no light of its own (the shop's card and the thank-you card):
-   the scene shows through it, gently bent, and it glows only in the scene's light. --gel is that
-   light: on the shop, the rig's color right now (shimmer.js copies it from the runway), with the
-   floor's glitter glowing up through the bottom of the water; on the thank-you page, the pink
-   planet below. Every browser gets the light frost; Chrome and Edge also bend the light through
-   the page's #water filter. */
+/* ---------- The water: both cards are a pane of water over the scene ---------- */
+/* Without WebGL: light frosted glass. With it, water.js adds .water-on and draws the card itself:
+   the scene behind seen through moving water, the dress standing in it, and the words rippling
+   with it. The words stay in the page (for screen readers and selection) but turn invisible. */
 .water-glass {
-  --gel: 255 96 196;
-  border-color: rgb(var(--gel) / 0.32);
-  background:
-    linear-gradient(0deg, rgb(var(--gel) / 0.16), transparent 45%),
-    linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(10 5 14 / 0.36));
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: var(--radius-card);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(10 5 14 / 0.36));
   -webkit-backdrop-filter: blur(3px) saturate(1.5);
   backdrop-filter: blur(3px) saturate(1.5);
-  backdrop-filter: url(#water) saturate(1.5) brightness(0.9);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.4),
-    inset 0 -1px 0 rgb(var(--gel) / 0.55),
-    inset 0 0 70px rgb(var(--gel) / 0.07),
     0 28px 64px rgb(0 0 0 / 0.35);
-  text-shadow: 0 1px 10px rgb(0 0 0 / 0.6);
 }
-/* The glints sit on the water, under the dress and the words. */
-.water-glass .shimmer {
+.water-glass.water-on {
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.water-gl {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border-radius: inherit;
   pointer-events: none;
-  mix-blend-mode: screen;
 }
-.water-glass > :not(.shimmer) {
-  position: relative;
+.water-glass > :not(.water-gl) {
+  position: relative; /* above the water */
 }
-.water-filter {
-  position: absolute;
+.water-on .ripple-text,
+.water-on .ripple-text * {
+  color: transparent;
+  text-shadow: none;
+}
+.water-on #look {
+  visibility: hidden; /* the water draws the dress, standing in it */
+}
+.ripple-word {
+  display: inline-block;
+  white-space: nowrap; /* a line never breaks inside a word */
+}
+
+/* ---------- The shop's card: the dress on the left, the buying on the right ---------- */
+.product {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: var(--card-pad) 28px;
 }
 .product-art {
   display: block;
@@ -112,38 +119,10 @@ main {
   line-height: 1.1;
   letter-spacing: 0.01em;
   text-transform: lowercase;
+  margin-bottom: 14px; /* room for its reflection in the water */
   text-shadow:
     0 0 14px rgb(255 238 246 / 0.55),
     0 0 34px rgb(255 184 214 / 0.35);
-}
-/* The dress, the title and the price ride the water (float.js moves them with the same waves as
-   the glints). The name field and the button stay still: people have to type and tap them. */
-.float-word {
-  display: inline-block;
-  white-space: nowrap;
-}
-.float-letter {
-  display: inline-block;
-}
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.water-glass > canvas.float-art {
-  position: absolute;
-  pointer-events: none;
-}
-.product.floating #look {
-  visibility: hidden; /* its copy shows it, seen through the moving water */
-}
-@media (prefers-reduced-motion: reduce) {
-  .water-glass {
-    backdrop-filter: blur(3px) saturate(1.5); /* still water: the frost without the moving refraction */
-  }
 }
 .blurb {
   color: var(--text-muted);
@@ -155,166 +134,100 @@ main {
 .buy {
   display: flex;
   gap: 10px;
+  margin-top: 6px;
 }
 .status {
   min-height: 1.4em;
   color: var(--caret);
   font-size: 14px;
 }
-.hint {
-  color: var(--text-muted);
-  font-size: 12.5px;
-}
-.hint b {
-  color: #fff;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
 
-/* The front row: one chip per paid order, lit in one of the seven stage lights. */
+/* ---------- The front row: the names Stripe's webhook confirmed, written in light ---------- */
 .front-row {
   margin-top: 26px;
   text-align: center;
 }
 .front-row h2 {
-  display: inline-block;
   margin: 0;
-  padding: 7px 16px;
-  border-radius: 999px;
-  background: rgb(12 8 14 / 0.78); /* a dark pill, so the gold stays readable over the bright glitter */
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-.front-row h2 span {
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-}
-.arrivals {
-  display: inline-block;
-  margin: 8px 0 0;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: rgb(12 8 14 / 0.78);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   color: var(--gold);
-  font-size: 14px;
+  font: 500 11px/1.4 var(--font-sans);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px #000;
 }
-.arrivals:empty {
-  padding: 0; /* stays in the page (so screen readers hear it when it fills) but takes no room */
-}
-.front-row h2 + .arrivals {
-  display: table; /* its own line, centered under the heading */
-  margin-inline: auto;
-}
-.chips {
+.names {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin: 12px 0 0;
+  gap: 2px 22px;
+  margin: 6px auto 0;
   padding: 0;
   list-style: none;
 }
-.chips:empty::after {
-  content: 'Empty seats. Be the first.';
-  color: var(--text-muted);
-  font-size: 14px;
+.name {
+  font-family: var(--font-script);
+  font-size: 32px;
+  line-height: 1.25;
+  color: #fff;
+  text-shadow:
+    0 1px 6px rgb(0 0 0 / 0.85),
+    0 0 14px color-mix(in srgb, var(--act) 75%, transparent),
+    0 0 36px color-mix(in srgb, var(--act) 45%, transparent);
 }
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border: 1px solid color-mix(in srgb, var(--act) 55%, transparent);
-  border-radius: 999px;
-  background: rgb(12 8 14 / 0.72);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  font-size: 14px;
-}
-.chip::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--act);
-  box-shadow: 0 0 10px var(--act);
-}
-.chip small {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-/* A name that just arrived (Stripe's webhook just landed) glows in, once. */
-.chip.is-new {
-  animation: arrive 2.4s ease-out;
+/* A name that just arrived (Stripe's webhook just landed) blooms in, once. */
+.name.is-new {
+  animation: arrive 2.6s ease-out;
 }
 @keyframes arrive {
   0% {
-    transform: scale(0.5);
     opacity: 0;
+    filter: blur(8px);
+    transform: translateY(6px);
   }
-  25% {
-    transform: scale(1.15);
+  30% {
     opacity: 1;
-    background: color-mix(in srgb, var(--act) 45%, rgb(12 8 14));
-    box-shadow: 0 0 44px 14px color-mix(in srgb, var(--act) 80%, transparent);
+    filter: blur(0);
+    text-shadow:
+      0 0 2px #fff,
+      0 0 30px var(--act),
+      0 0 70px var(--act);
   }
   100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 transparent;
+    transform: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .chip.is-new {
+  .name.is-new {
     animation: none;
-    outline: 2px solid var(--act);
-    outline-offset: 3px;
   }
 }
 
-.fineprint {
-  padding: 22px 16px;
-  color: rgb(255 255 255 / 0.7);
-  font-size: 12px;
-  text-align: center;
-  text-shadow: 0 1px 4px #000;
-}
-
-/* The success page: one card in the galaxy. */
+/* ---------- The thank-you card: just the words, on the water ---------- */
 .thanks {
   display: grid;
-  gap: 14px;
-  width: min(560px, 100%);
-  margin: 6vh auto 0;
-  padding: 28px;
-  border-radius: var(--radius-card);
+  justify-items: center;
+  gap: 22px;
+  width: min(520px, 100%);
+  margin: 10vh auto 0;
+  padding: 44px 28px 36px;
 }
 .thanks > * {
   margin: 0;
 }
 .thanks h1 {
-  font-size: 24px;
-  font-weight: 500;
-}
-.thanks p {
-  line-height: 1.55;
-}
-.proof {
-  padding: 12px 16px;
-  border: 1px solid rgb(255 255 255 / 0.22);
-  border-radius: 12px;
-  color: var(--text-muted);
-}
-.proof[data-state='confirmed'] {
-  border-color: var(--gold);
-  color: var(--gold);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--gold) 30%, transparent);
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: lowercase;
+  margin-bottom: 22px; /* room for its reflection in the water */
+  text-shadow:
+    0 0 16px rgb(255 238 246 / 0.6),
+    0 0 40px rgb(255 184 214 / 0.4);
 }
 .thanks .pearl-button {
   display: inline-flex;
   align-items: center;
-  justify-self: start;
   text-decoration: none;
 }
 
@@ -327,16 +240,13 @@ main {
   }
   .product {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 14px;
     padding: 18px;
   }
   .product-art {
-    width: 180px;
-    height: 210px;
+    width: 200px;
+    height: 234px;
     margin: 0 auto;
-  }
-  .front-row {
-    margin-top: 18px;
   }
   .product-info h1 {
     font-size: 31px;
@@ -344,12 +254,10 @@ main {
   .buy {
     flex-direction: column;
   }
-  .thanks {
-    padding: 22px 18px;
+  .name {
+    font-size: 28px;
   }
-}
-
-/* The thank-you card's water glows in the pink planet's light below it. */
-.thanks.water-glass {
-  --gel: 255 168 214;
+  .thanks h1 {
+    font-size: 46px;
+  }
 }

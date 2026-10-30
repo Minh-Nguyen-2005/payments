@@ -20,7 +20,7 @@ You order at a food-court counter and get a buzzer. You walk back to your table.
 2. **Make a session.** [src/index.ts](src/index.ts) checks the name, then calls `stripe.checkout.sessions.create(...)` with the price **in cents** (`200` is $2.00), `metadata: { name }`, and the two URLs Stripe will send the buyer back to. Stripe answers with a session whose `url` is a page on `checkout.stripe.com`.
 3. **Pay on Stripe's page.** The browser goes there (`window.location.href = data.url`). Our server never sees the card.
 4. **Stripe tells our server.** Stripe POSTs `checkout.session.completed` to `/api/webhook`. We check the signature, then insert the order. The board, which polls `GET /api/orders` every 2 seconds, shows the name.
-5. **The redirect.** Stripe sends the browser to `/success?session_id=cs_…`. That page *asks* the server whether the webhook has confirmed this session. It writes nothing.
+5. **The redirect.** Stripe sends the browser to `/success?session_id=cs_…`, which just says *thank you*. It writes nothing and proves nothing, because anyone can type that address. The proof is the name on the board.
 
 With a real deployed endpoint, Stripe even **waits up to 10 seconds for your webhook** before redirecting, so the name often lands before the success page loads. With `stripe listen` on your laptop, the redirect happens straight away.
 
@@ -43,7 +43,7 @@ With a real deployed endpoint, Stripe even **waits up to 10 seconds for your web
   4. `payment_intent.succeeded` with `channel: 'agent'`: an AI agent paid (see below).
   5. Answer `{ received: true }` with status 200. Any other answer, including a crash, makes Stripe **retry** later.
 - **`recordOrder`:** `INSERT OR IGNORE` and the `session_id` primary key make it **idempotent**. Stripe retries and can send the same event twice, and the second insert does nothing.
-- **`GET /api/orders` and `GET /api/orders/:sessionId`:** read-only. The board and the success page use them.
+- **`GET /api/orders` and `GET /api/orders/:sessionId`:** read-only. The board uses the first; the agent script uses the second to wait for its webhook.
 - **`POST /api/agent-buy` and `GET /.well-known/ucp`:** the agentic-commerce demo (below).
 
 ### [schema.sql](schema.sql)
@@ -57,18 +57,23 @@ The Worker's settings:
 - `d1_databases` connects the `DB` database.
 - `observability` keeps our `console.log`s in the Cloudflare dashboard.
 
-### [public/app.js](public/app.js) and [public/success.js](public/success.js)
+### [public/app.js](public/app.js)
 
 - **The Buy button** disables itself while it waits, so one click makes one session. The `pageshow` handler re-enables it when someone presses Back on Stripe's page.
 - **The board** draws names with **`textContent`, never `innerHTML`**. The names are typed by strangers, and `innerHTML` would let someone inject HTML into everyone's screen.
-- **The success page** polls `GET /api/orders/:sessionId` for 30 seconds and changes from "⏳ waiting for Stripe's webhook" to "✓ Confirmed".
+- **New names bloom in:** a name the board hasn't drawn before just arrived, meaning Stripe's webhook just landed.
+- **Polling pauses** while the tab is hidden, to save the free quota.
 
 ### The look (decoration only: nothing here touches payments)
 
 [public/decor.js](public/decor.js) loads the scenery from our Fandemonium lab:
 - `stage/runway.js` is the glitter runway and `stage/galaxy.js` the galaxy behind `/success`.
 - `product/dress.js` draws the dress, in code.
-- `stage/shimmer.js` and `stage/float.js` make the card a water surface: it catches the stage's own light, and its content rides the waves.
+- `stage/water.js` makes each card a pane of water, drawn with WebGL, the graphics chip's own pixel shading, which is what makes water smooth.
+  - **The water:** the scene behind the card seen through slow swells, raindrop rings and caustics.
+  - **The dress (on the shop):** it stands in the water, wet, with its reflection rippling below it, rain falling past, and a rare lightning flicker.
+  - **The words:** liquid type, after Katia Temkin's animation of Ariana Grande's *positions* title. The title stands on the water with its reflection, and the small words waver gently.
+  - The name field and the button stay crisp on top. Without WebGL, the card stays frosted glass.
 
 Everything holds still for anyone who turns on "reduce motion", and pauses in a hidden tab. If any of it fails, the shop still works on a plain dark background.
 
@@ -126,7 +131,7 @@ npx wrangler tail --format pretty                # watch the webhook logs live d
 Why turn Link off? Our rehearsal on a phone found Stripe's page with "Save my information with Link" already ticked, which makes a phone number required. Pay then fails with *"Phone number is required"*, a dead end for a classroom.
 
 Rehearsed on the live site:
-- **A clean browser at phone size** went from the shop, to Stripe, to paying with 4242, to `/success` saying "✓ Confirmed by Stripe's signed webhook", to its name on the board, in under 10 seconds.
+- **A clean browser at phone size** went from the shop, to Stripe, to paying with 4242, to `/success`, to its name on the board, in under 10 seconds.
 - **The agent bought** through the deployed webhook.
 - **30 simultaneous board polls and 15 simultaneous checkouts** all returned 200.
 

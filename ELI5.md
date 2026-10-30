@@ -85,7 +85,7 @@ It's real: Anthropic launched it on 2026-10-21 as a research preview. It's an as
 |---|---|---|
 | 0:00–2:30 | Cathy | ELI5 and where Stripe fits in the stack. End on the question: "anyone can type `/success`. So how do we *know*?" |
 | 2:30–3:15 | Minh | Buy the dress live, pay with 4242, and watch the front row light up |
-| 3:15–3:45 | Minh | Type `/success` by hand: "nothing was recorded" |
+| 3:15–3:45 | Minh | Type `/success` by hand: it still says *thank you*, but no name lands. "A thank-you page proves nothing." |
 | 3:45–5:15 | Minh + Cathy | The three routes, then the webhook code line by line: raw body, signature, secret, verify, save once |
 | 5:15–6:00 | Minh | `npm run agent`: 🤖 joins. Then a $1.00 slip: refused. |
 | 6:00–10:00 | Everyone | The class activity (README, "Try it") |

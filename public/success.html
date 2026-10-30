@@ -15,34 +15,18 @@
   <body class="galaxy-page">
     <div id="stage" class="stage" data-scene="galaxy"></div>
 
-    <!-- The water in the card's glass: slow, wide ripples that bend the galaxy behind it. -->
-    <svg class="water-filter" width="0" height="0" aria-hidden="true">
-      <filter id="water" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.013" numOctaves="2" seed="7" result="ripples">
-          <animate attributeName="baseFrequency" dur="13.1s" values="0.006 0.013;0.0068 0.015;0.006 0.013" repeatCount="indefinite" />
-        </feTurbulence>
-        <feDisplacementMap in="SourceGraphic" in2="ripples" scale="34" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </svg>
-
     <header class="top">
       <a class="wordmark" href="/">Fandemonium</a>
     </header>
 
+    <!-- Just a thank-you: this page proves nothing (anyone can type /success). The board does. -->
     <main>
       <section id="status-card" class="galaxy-card thanks water-glass" aria-labelledby="thanks-title">
-        <p class="label">Thank you</p>
-        <h1 id="thanks-title" class="display">You were redirected here,</h1>
-        <p>
-          <strong>but this page does NOT prove you paid.</strong>
-          Check the orders board on the front page: it only updates when Stripe's webhook arrives.
-        </p>
-        <p id="proof" class="proof" role="status" data-state="waiting">Checking…</p>
-        <a class="pearl-button" href="/">Back to the front row</a>
+        <h1 id="thanks-title" class="ripple-text">Thank you</h1>
+        <a class="pearl-button" href="/">Back to the store</a>
       </section>
     </main>
 
-    <script type="module" src="/success.js"></script>
     <script type="module" src="/decor.js"></script>
   </body>
 </html>

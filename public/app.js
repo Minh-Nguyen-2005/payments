@@ -48,8 +48,9 @@ async function refreshBoard() {
     const fresh = drawn ? orders.filter((order) => !drawn.has(keyOf(order))) : []
     if (drawn && fresh.length === 0 && drawn.size === orders.length) return // nothing changed
     drawn = new Set(orders.map(keyOf))
-    board.replaceChildren(...orders.map((order) => chipFor(order, fresh.includes(order))))
-    if (fresh.length) arrivals.textContent = `✓ Webhook received: ${fresh.map((o) => o.name).join(', ')} just took a seat`
+    board.replaceChildren(...orders.map((order) => nameFor(order, fresh.includes(order))))
+    // Said, not shown: screen readers hear who just arrived.
+    if (fresh.length) arrivals.textContent = `${fresh.map((o) => o.name).join(', ')} just took a seat`
   } catch {
     // Offline for a moment: keep the last board and try again on the next tick.
   }
@@ -59,16 +60,13 @@ function keyOf(order) {
   return `${order.created_at}:${order.name}`
 }
 
-function chipFor(order, isNew) {
-  const chip = document.createElement('li')
-  chip.className = isNew ? 'chip is-new' : 'chip'
-  chip.style.setProperty('--act', `var(--act-${order.created_at % 7})`) // one of the seven stage lights
-  const name = document.createElement('span')
-  name.textContent = (order.channel === 'agent' ? '🤖 ' : '') + order.name
-  const amount = document.createElement('small')
-  amount.textContent = `$${(order.amount / 100).toFixed(2)}` // Stripe counts cents: 200 is $2.00
-  chip.append(name, amount)
-  return chip
+// A name, written in light in one of the seven stage colors.
+function nameFor(order, isNew) {
+  const item = document.createElement('li')
+  item.className = isNew ? 'name is-new' : 'name'
+  item.style.setProperty('--act', `var(--act-${order.created_at % 7})`)
+  item.textContent = order.name
+  return item
 }
 
 refreshBoard()
