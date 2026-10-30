@@ -56,7 +56,7 @@ Agents can't click through a payment page, so new protocols let them buy directl
 
 * [Stripe Checkout docs](https://docs.stripe.com/payments/checkout)
 * [Stripe webhooks docs](https://docs.stripe.com/webhooks): signatures, retries, event types
-* [The one good tutorial: webhook endpoints and fulfillment](https://dev.to/stripe/building-an-ecommerce-store-33-webhook-endpoints-and-fulfillment-260j)
+* [The one good tutorial: Stripe's "Fulfill orders" guide](https://docs.stripe.com/checkout/fulfillment), a walkthrough of exactly what our webhook does (the old dev.to tutorial was taken down; here's an [archived copy](https://web.archive.org/web/20250805054437/https://dev.to/stripe/building-an-ecommerce-store-33-webhook-endpoints-and-fulfillment-260j))
 * [The one good video: Stripe in 100 seconds (Fireship)](https://www.youtube.com/watch?v=7edR32QVp_A) (an older API, but the right mental model)
 * [Stripe's page on UCP](https://docs.stripe.com/agentic-commerce/protocols/ucp), for the agent part
 
