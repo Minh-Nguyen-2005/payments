@@ -62,4 +62,5 @@ Agents can't click through a payment page, so new protocols let them buy directl
 
 ## Slides
 
-* [payments-workshop.html](slides/payments-workshop.html): our 13-slide deck, a single self-contained file in this repo. Download it (or clone the repo) and open it in a browser; use the arrow keys to move between slides.
+* **[Open the slides](https://fandemonium-shop.minh-t-nguyen-27.workers.dev/slides.html)**: our 13-slide deck, served by the same site as the demo. Use the arrow keys to move between slides.
+* The source is [public/slides.html](public/slides.html), a single self-contained file in this repo.
