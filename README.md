@@ -62,4 +62,4 @@ Agents can't click through a payment page, so new protocols let them buy directl
 
 ## Slides
 
-TODO: the link to our shared deck.
+* [payments-workshop.html](slides/payments-workshop.html): our 13-slide deck, a single self-contained file in this repo. Download it (or clone the repo) and open it in a browser; use the arrow keys to move between slides.
