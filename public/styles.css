@@ -162,11 +162,16 @@ main {
 }
 .front-row h2 {
   margin: 0;
-  color: var(--gold);
-  font: 500 11px/1.4 var(--font-sans);
+  color: #ffe9bd;
+  font: 600 12px/1.4 var(--font-sans);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  text-shadow: 0 1px 8px #000;
+  text-shadow:
+    0 0 3px #fff4dc,
+    0 0 10px rgb(255 214 150 / 0.95),
+    0 0 22px rgb(232 203 142 / 0.85),
+    0 0 40px rgb(232 203 142 / 0.6),
+    0 1px 2px rgb(0 0 0 / 0.9);
 }
 .names {
   display: flex;
@@ -182,10 +187,15 @@ main {
   font-size: 32px;
   line-height: 1.25;
   color: #fff;
+  /* Words that glow: a white-hot core, then halos in the name's stage light, wide enough to shine
+     over the glitter, and a tight dark edge under it all so the script stays crisp. */
   text-shadow:
-    0 1px 6px rgb(0 0 0 / 0.85),
-    0 0 14px color-mix(in srgb, var(--act) 75%, transparent),
-    0 0 36px color-mix(in srgb, var(--act) 45%, transparent);
+    0 0 2px #fff,
+    0 0 6px #fff,
+    0 0 14px var(--act),
+    0 0 28px var(--act),
+    0 0 52px color-mix(in srgb, var(--act) 75%, transparent),
+    0 1px 3px rgb(0 0 0 / 0.9);
 }
 /* A name that just arrived (Stripe's webhook just landed) blooms in, once. */
 .name.is-new {
@@ -201,9 +211,11 @@ main {
     opacity: 1;
     filter: blur(0);
     text-shadow:
-      0 0 2px #fff,
+      0 0 3px #fff,
+      0 0 10px #fff,
       0 0 30px var(--act),
-      0 0 70px var(--act);
+      0 0 60px var(--act),
+      0 0 100px var(--act);
   }
   100% {
     transform: none;
