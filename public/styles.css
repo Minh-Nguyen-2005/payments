@@ -83,7 +83,7 @@ main {
   text-shadow: none;
 }
 .water-on #look {
-  visibility: hidden; /* the water draws the dress, standing in it */
+  opacity: 0; /* the water draws the dress over it; the picture stays for screen readers */
 }
 /* The field, the buttons and the status line: the water draws them rippling, so the real ones
    (which do the typing and clicking, and keep the cursor and the keyboard focus ring) go clear. */
@@ -113,8 +113,10 @@ main {
 }
 .product-art {
   display: block;
-  width: 280px; /* dress.js draws at the canvas's CSS size */
+  width: 280px; /* the dress's picture (840 x 980), a third of its size; water.js draws it here too */
   height: 327px;
+  margin-bottom: 40px; /* room under the waterline for the dress's reflection */
+  object-fit: contain;
 }
 .product-info {
   display: grid;
